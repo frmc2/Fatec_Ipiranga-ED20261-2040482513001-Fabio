@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+/*----------------------------------------------------------------------------------*/
+/*                                FATEC-Ipiranga                                    */        
+/*                            ADS - Estrutura de Dados                              */
+/*                             Id da Atividade: N1-3                                */
+/*                          Objetivo: Simulacao HP12c                               */
+/*                                                                                  */
+/*                                     Fabio                                        */
+/*                                                                   Data:25/03/2026*/
+/*----------------------------------------------------------------------------------*/
+
+#define N 4
+
+void peek(int stack[]) {
+    printf("Pilha: [T: %d] [Z: %d] [Y: %d] [X: %d]\n", stack[3], stack[2], stack[1], stack[0]);
+}
+void push(int stack[], int valor) {
+    for (int i = N - 1; i > 0; i--) stack[i] = stack[i - 1];
+    stack[0] = valor;
+}
+void op(int stack[], char c) {
+    int r;
+    switch (c) {
+        case '+': r = stack[1] + stack[0]; break;
+        case '-': r = stack[1] - stack[0]; break;
+        case '*': r = stack[1] * stack[0]; break;
+        case '/': 
+            if (stack[0] == 0) {
+                printf("Erro: divisão por zero.\n");
+                return;
+            }
+            r = stack[1] / stack[0]; 
+            break;
+        default: printf("Operador inválido!\n"); return;
+    }
+    
+    stack[0] = r;
+    for (int i = 1; i < N; i++) stack[i] = stack[i + 1];
+    stack[N - 1] = 0;
+}
+
+int main() {
+    int stack[N] = {0, 0, 0, 0};
+    char entrada[100];
+    char cont;
+
+    do {
+        printf("\nDigite a expressão em formato RPN (ex: 5 1 2 + 4 * + 3) ou 'sair' para encerrar: ");
+        fgets(entrada, sizeof(entrada), stdin);
+
+        if (strncmp(entrada, "sair", 4) == 0) break;
+
+        char *token = strtok(entrada, " ");
+        while (token != NULL) {
+            if (isdigit(token[0]) || (token[0] == '-' && isdigit(token[1]))) {
+                int valor = atoi(token);
+                push(stack, valor);
+                peek(stack);
+            } else {
+                op(stack, token[0]);
+                peek(stack);
+            }
+            token = strtok(NULL, " ");
+        }
+
+        printf("\nResultado: %d\n", stack[0]);
+        printf("\nDeseja realizar outra operação? (s/n): ");
+        scanf(" %c", &cont);
+        getchar();
+
+    } while (cont == 's' || cont == 'S');
+
+    printf("Obrigado por usar nossa Calculadora Fatec-HP12c!\n");
+
+    return 0;
+}
